@@ -3,6 +3,7 @@ import type React from 'react'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useSiteEffects } from '@/lib/useSiteEffects'
+import { useEnquiry } from '@/lib/useEnquiry'
 import { TOURS, type TourData } from '@/data/tours'
 import Lightbox from './Lightbox'
 const LC: Record<string, string> = { Bestseller: '', New: 'teal', 'Few seats left': 'red', 'Honeymoon pick': 'pink', 'Group departure': 'blue', 'Family favourite': 'green' }
@@ -25,10 +26,11 @@ function Route({ nodes }: { nodes: string[][] }) {
 }
 export default function TourDetail({ tour: t }: { tour: TourData }) {
   useSiteEffects()
+  const enq = useEnquiry('tour',{ extra: { tour: t.name } })
+  const sent = enq.sent
   const [open, setOpen] = useState<Set<number>>(new Set([1]))
   const [pol, setPol] = useState<Set<number>>(new Set())
   const [n, setN] = useState(2)
-  const [sent, setSent] = useState(false)
   const [tab, setTab] = useState(0)
   const [lb, setLb] = useState<number | null>(null)
   const flip = (s: Set<number>, k: number) => { const x = new Set(s); x.has(k) ? x.delete(k) : x.add(k); return x }
@@ -87,12 +89,12 @@ export default function TourDetail({ tour: t }: { tour: TourData }) {
         <div className="g3">{Object.values(TOURS).filter(x => x.slug !== t.slug && x.region === t.region).slice(0, 3).map((x, i) => (
           <Link key={x.slug} href={`/leisure/${x.slug}`} className="post glass reveal" style={d(`${i * 0.08}s`)}><div className="img" style={{ '--a': x.a, '--b': x.b } as React.CSSProperties}><div className="pimg" data-l="Tour image · 800×500" />{x.label && <span className={'lbl ' + LC[x.label]}>{x.label}</span>}<span className="rg">{x.region === 'dom' ? 'Domestic' : 'International'}</span></div>
             <div className="pt"><div className="mt"><b>{x.place}</b><span>{x.days.length} days / {x.days.length - 1} nights</span></div><h3>{x.name}</h3><div className="tf"><div><small>From, per person</small><strong>{inr(x.price)}</strong></div><span className="rt">★ {x.rating}</span></div><span className="rd">View itinerary →</span></div></Link>))}</div></div></section>
-      <section id="enquire" style={{ scrollMarginTop: 70 }}><div className="wrap"><form className="cf glass reveal" onSubmit={e => { e.preventDefault(); setSent(true) }}>
+      <section id="enquire" style={{ scrollMarginTop: 70 }}><div className="wrap"><form className="cf glass reveal" onSubmit={enq.onSubmit}>
         <div className="full"><span className="eyebrow">Reserve your seat</span><h2>Enquire about <em>{t.name}</em></h2></div>
-        <input className="in" placeholder="Full name" required /><input className="in" type="email" placeholder="Email address" required />
-        <input className="in" placeholder="Phone number" /><input className="in" placeholder="Number of travellers" />
-        <textarea className="in full" placeholder="Anything we should know — dates, room preferences, special requests" maxLength={1000} />
-        <button className="btn pri full" style={{ justifySelf: 'start' }}>{sent ? 'Thank you — we’ll be in touch ✓' : 'Send enquiry'}</button></form></div></section>
+        <input name="name" className="in" placeholder="Full name" required /><input name="email" className="in" type="email" placeholder="Email address" required />
+        <input name="phone" className="in" placeholder="Phone number" /><input name="travellers" className="in" placeholder="Number of travellers" />
+        <textarea name="message" className="in full" placeholder="Anything we should know — dates, room preferences, special requests" maxLength={1000} />
+        <button className="btn pri full" style={{ justifySelf: 'start' }}>{sent ? 'Thank you — we’ll be in touch ✓' : 'Send enquiry'}</button>{enq.err && <p className="ferr full">{enq.err}</p>}</form></div></section>
       <Lightbox items={t.heroLabels.map((l, i) => ({ label: l, title: t.name, sub: `Photo ${i + 1} of ${t.heroLabels.length}`, a: t.a, b: t.b }))} index={lb} onIndex={setLb} onClose={() => setLb(null)} />
       <div className="mb"><div><small>From, per person</small><b>{inr(t.price)}</b></div><a href="#enquire" className="btn pri" style={{ padding: '12px 22px' }}>Enquire</a></div>
     </div>

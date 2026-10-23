@@ -2,10 +2,12 @@
 import type React from 'react'
 import { useState } from 'react'
 import { useSiteEffects } from '@/lib/useSiteEffects'
+import { useEnquiry } from '@/lib/useEnquiry'
 const N = ['Tata Group','Infosys','Mahindra','HDFC','Asian Paints','Wipro','ITC','Reliance']
 export default function MiceContent() {
   useSiteEffects()
-  const [sent, setSent] = useState(false)
+  const enq = useEnquiry('mice')
+  const sent = enq.sent
   return (<div className="mice">
 
 <header className="hero"><div className="orb o1"></div><div className="orb o2"></div>
@@ -72,13 +74,13 @@ export default function MiceContent() {
 <section id="rfp" style={{'paddingTop':'0'} as React.CSSProperties}><div className="wrap"><div className="box glass reveal">
 <div><span className="eyebrow">Request a proposal</span><h2>Tell us about your <em>event</em></h2>
 <div className="info"><div><b>MICE desk</b>+91-XXXXXXXXXX</div><div><b>Email</b>mice@wanderline.com</div><div><b>Response time</b>Within 24 working hours</div></div></div>
-<form onSubmit={e=>{e.preventDefault();setSent(true)}}>
-<input className="in" placeholder="Full name" required /><input className="in" placeholder="Company" required />
-<input className="in" type="email" placeholder="Work email" required /><input className="in" placeholder="Phone" />
-<select className="in"><option>Event type</option><option>Meeting</option><option>Incentive</option><option>Conference</option><option>Exhibition</option></select>
-<select className="in"><option>Group size</option><option>20–50</option><option>50–200</option><option>200–1,000</option><option>1,000+</option></select>
-<textarea className="in full" placeholder="Destination, dates and anything else we should know"></textarea>
-<button className="btn pri full" style={{'justifySelf':'start'} as React.CSSProperties}>{sent?'Thank you — we’ll be in touch ✓':'Send request'}</button></form>
+<form onSubmit={enq.onSubmit}>
+<input name="name" className="in" placeholder="Full name" required /><input name="company" className="in" placeholder="Company" required />
+<input name="email" className="in" type="email" placeholder="Work email" required /><input name="phone" className="in" placeholder="Phone" />
+<select name="eventType" className="in"><option>Event type</option><option>Meeting</option><option>Incentive</option><option>Conference</option><option>Exhibition</option></select>
+<select name="groupSize" className="in"><option>Group size</option><option>20–50</option><option>50–200</option><option>200–1,000</option><option>1,000+</option></select>
+<textarea name="message" className="in full" placeholder="Destination, dates and anything else we should know"></textarea>
+<button className="btn pri full" style={{'justifySelf':'start'} as React.CSSProperties}>{sent?'Thank you — we’ll be in touch ✓':'Send request'}</button>{enq.err && <p className="ferr full">{enq.err}</p>}</form>
 </div></div></section>
 
 </div>)

@@ -2,12 +2,14 @@
 import type React from 'react'
 import { useState } from 'react'
 import { useSiteEffects } from '@/lib/useSiteEffects'
+import { useEnquiry } from '@/lib/useEnquiry'
 import Link from 'next/link'
 import Packages from './Packages'
 const N = ['Emirates','Singapore Airlines','Marriott','Taj Hotels','Qatar Airways','Hyatt','IndiGo','Accor']
 export default function HomeContent() {
   useSiteEffects()
-  const [sent, setSent] = useState(false)
+  const enq = useEnquiry('contact',{ extra: { source: 'home page' } })
+  const sent = enq.sent
   return (<>
 
 <header className="hero">
@@ -87,9 +89,9 @@ export default function HomeContent() {
 <section className="contact" id="contact" style={{'paddingTop':'0'} as React.CSSProperties}><div className="wrap"><div className="box glass reveal">
 <div><span className="eyebrow">Get in touch</span><h2>Let’s plan your <em>escape</em></h2>
 <div className="info"><div><b>Call us</b>+91-XXXXXXXXXX</div><div><b>Email</b>hello@wanderline.com</div><div><b>Office</b>Howrah, West Bengal, India</div></div></div>
-<form onSubmit={e=>{e.preventDefault();setSent(true)}}>
-<input className="in" placeholder="Your name" required /><input className="in" type="email" placeholder="Email address" required /><textarea className="in" placeholder="Tell us about your dream trip" maxLength={1000}></textarea>
-<button className="btn pri" style={{'justifySelf':'start'} as React.CSSProperties}>{sent?'Thank you — we’ll be in touch ✓':'Send enquiry'}</button></form>
+<form onSubmit={enq.onSubmit}>
+<input name="name" className="in" placeholder="Your name" required /><input name="email" className="in" type="email" placeholder="Email address" required /><textarea name="message" className="in" placeholder="Tell us about your dream trip" maxLength={1000}></textarea>
+<button className="btn pri" style={{'justifySelf':'start'} as React.CSSProperties}>{sent?'Thank you — we’ll be in touch ✓':'Send enquiry'}</button>{enq.err && <p className="ferr full">{enq.err}</p>}</form>
 </div></div></section>
 
 </>)
